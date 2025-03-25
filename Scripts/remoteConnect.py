@@ -1,3 +1,20 @@
+"""
+脚本名称: remoteConnect.py
+脚本功能: 此脚本用于建立与远程服务器的连接，接收服务器发送的数据，
+          并允许用户通过按Enter键保存当前测量点位的数据，同时支持安全退出。
+主要组件:
+  - SocketClient: 负责与远程服务器建立连接、接收数据以及获取测量点位信息。
+  - DataSaver: 负责将测量点位数据保存到本地。
+主要流程:
+  1. 初始化SocketClient和DataSaver对象。
+  2. 尝试连接到指定的远程服务器。
+  3. 若连接成功，启动一个后台线程用于持续接收服务器数据。
+  4. 在主线程中等待用户输入，用户按Enter键时保存当前测量点位数据，按Ctrl+C时安全退出。
+  5. 退出时关闭与服务器的连接。
+注意事项:
+  - 服务器的IP地址和端口号在代码中硬编码为 "192.168.1.104" 和 5174，可根据实际情况修改。
+  - 仅显示ID范围在101到112之间的测量点位信息。
+"""
 from remoteConnect.socketClient import SocketClient
 from remoteConnect.dataSaver import DataSaver
 import sys
