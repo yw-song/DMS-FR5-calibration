@@ -95,7 +95,7 @@ def main():
     robot_arm.ProgramRun()
 
     # 初始化数据记录文件
-    csv_path = r"..\Data\机器人轨迹记录.csv"
+    csv_path = r"..\Data\gripperPose.csv"
     with open(csv_path, 'w', newline='') as csv_fd:
         csv_writer = csv.writer(csv_fd)
         csv_writer.writerow(['时间戳', 'X', 'Y', 'Z', 'Rx', 'Ry', 'Rz'])
