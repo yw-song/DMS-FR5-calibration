@@ -1,11 +1,12 @@
 import pandas as pd
-import os
+import csv
 import warnings
 from pathlib import Path
 from typing import List
 from datetime import datetime
 from threading import Lock
 from .socketClient import MeasurePoint
+from typing import Dict
 
 # 过滤openpyxl警告
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -92,3 +93,79 @@ class DataSaver:
         except Exception as e:
             print(f"× 保存异常：{str(e)}")
             return False
+
+
+class CSVDataSaver:
+    def __init__(self, file_path: str):
+        self.file_path = Path(file_path)
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = Lock()
+        self._initialize_csv()
+
+    def _initialize_csv(self):
+        """初始化CSV文件并写入标题行"""
+        if not self.file_path.exists():
+            with self._lock:
+                with open(self.file_path, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Timestamp', 'ID', 'X', 'Y', 'Z'])
+
+    def save_averages(self, averages: Dict[int, dict], timestamp: str) -> bool:
+        """保存平均值到CSV（每个ID单独一行）"""
+        with self._lock:
+            try:
+                with open(self.file_path, 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    for id in sorted(averages.keys()):
+                        avg = averages[id]
+                        writer.writerow([
+                            timestamp,
+                            id,
+                            f"{avg['X']:.6f}",
+                            f"{avg['Y']:.6f}",
+                            f"{avg['Z']:.6f}"
+                        ])
+                print(f"√ 数据已追加至 {self.file_path}")
+                return True
+            except Exception as e:
+                print(f"× 保存失败: {str(e)}")
+                return False
+
+
+class RobotDataSaver:
+    def __init__(self, file_path: str):
+        self.file_path = Path(file_path)
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = Lock()
+        self._initialize_csv()
+
+    def _initialize_csv(self):
+        """初始化机器人数据CSV文件"""
+        if not self.file_path.exists():
+            with self._lock, open(self.file_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    'Timestamp',
+                    'X_avg', 'Y_avg', 'Z_avg',
+                    'RX_avg', 'RY_avg', 'RZ_avg'
+                ])
+
+    def save_robot_averages(self, averages: dict, timestamp: str) -> bool:
+        """保存机器人平均值数据"""
+        try:
+            with self._lock, open(self.file_path, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    timestamp,
+                    f"{averages['x']:.6f}",
+                    f"{averages['y']:.6f}",
+                    f"{averages['z']:.6f}",
+                    f"{averages['rx']:.6f}",
+                    f"{averages['ry']:.6f}",
+                    f"{averages['rz']:.6f}"
+                ])
+            return True
+        except Exception as e:
+            print(f"机器人数据保存失败: {str(e)}")
+            return False
+        

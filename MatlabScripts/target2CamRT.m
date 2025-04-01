@@ -35,7 +35,7 @@ clc,clear;
 source_points = generate_calibration_points();
 
 % 定义 Case 的数量
-num_cases = 20; 
+num_cases = 10; 
 
 % 定义 Excel 文件路径
 input_excel_file = "../Data/targetPoint.xlsx";
@@ -74,8 +74,8 @@ for case_num = 1:num_cases
     transformed = (R * source_points') + t';
     transformed = transformed';
     errors = vecnorm(transformed - target_points, 2, 2);
-    fprintf('\nCase%d 最大重投影误差: %.2f mm\n', case_num, max(errors));
-    fprintf('Case%d 平均重投影误差: %.2f mm\n', case_num, mean(errors));
+    fprintf('\nCase%d 点云配准误差: %.2f mm\n', case_num, max(errors));
+    fprintf('Case%d 平均点云配准误差: %.2f mm\n', case_num, mean(errors));
     
     % 关闭科学计数法输出
     format long g
